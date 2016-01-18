@@ -171,15 +171,15 @@ object Similarity {
   }
 
   def geneToTaxonProfileQuery(gene: IRI, resultLimit: Int, resultOffset: Int): Query = {
-    val query = select_distinct('taxon, 'taxon_label, 'median_score, 'expect_score) from "http://kb.phenoscape.org/" from "http://kb.phenoscape.org/sim/taxa" where (
+    val query = select_distinct('taxon, 'taxon_label, 'median_score) from "http://kb.phenoscape.org/" from "http://kb.phenoscape.org/sim/taxa" where (
       bgp(
         t(gene, has_phenotypic_profile, 'gene_profile),
         t('comparison, for_query_profile, 'gene_profile),
         t('comparison, combined_score, 'median_score),
-        t('comparison, has_expect_score, 'expect_score),
+        //t('comparison, has_expect_score, 'expect_score),
         t('comparison, for_corpus_profile, 'taxon_profile),
         t('taxon, has_phenotypic_profile, 'taxon_profile),
-        t('taxon, Vocab.rdfsLabel, 'taxon_label))) order_by (asc('expect_score), asc('median_score), asc('taxon))
+        t('taxon, Vocab.rdfsLabel, 'taxon_label))) order_by (asc('median_score), asc('taxon))
     if (resultLimit > 1) {
       query.setLimit(resultLimit)
       query.setOffset(resultOffset)
@@ -209,7 +209,7 @@ object Similarity {
     (result: QuerySolution) => SimilarityMatch(
       MinimalTerm(IRI.create(result.getResource("taxon").getURI), result.getLiteral("taxon_label").getLexicalForm),
       result.getLiteral("median_score").getDouble,
-      result.getLiteral("expect_score").getDouble)
+      result.getLiteral("median_score").getDouble)
 
 }
 
